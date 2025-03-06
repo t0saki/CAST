@@ -10,11 +10,14 @@ class Query:
     @strawberry.field
     async def query(self, username: str) -> int:
         """查询指定用户的票数"""
-        # 调用vote_service获取票数
-        pass
+        return await vote_service.get_user_votes(username)
 
     @strawberry.field
     async def cas(self) -> TicketInfo:
         """获取当前有效的票据"""
-        # 调用ticket_service获取票据
-        pass
+        ticket = await ticket_service.get_current_ticket()
+        return TicketInfo(
+            ticket=ticket["id"],
+            valid_until=ticket["expiresAt"],
+            remaining_usage=ticket["usageCount"]
+        )

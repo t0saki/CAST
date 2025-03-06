@@ -1,4 +1,5 @@
 original_docs/
+.vscode/
 
 *__pycache__
 *.pyc

@@ -8,10 +8,12 @@ from ..services.ticket_service import ticket_service
 @strawberry.type
 class Mutation:
     @strawberry.mutation
-    async def vote(self, usernames: List[str], ticket: str) -> VoteResult:
+    async def vote(self, usernames: List[str], voteCount: List[int], ticket: str, voterUsername: str = None) -> VoteResult:
         """为指定用户投票"""
-        # 验证票据
-        # 调用vote_service进行投票
-
-        # mock 投票成功
-        return VoteResult(success=True, message="投票成功", usernames=usernames, votes=[1, 2, 3])
+        result = await vote_service.vote_for_users(usernames, voteCount, ticket, voterUsername)
+        return VoteResult(
+            success=result["success"],
+            message=result["message"],
+            usernames=result["usernames"],
+            votes=result["votes"]
+        )
