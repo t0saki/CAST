@@ -1,1 +1,1 @@
-# **_C_**oncurrent **_A_**PI for **_S_**ecure **_T_**icketing (CAST)
+# *C*oncurrent *A*PI for *S*ecure *T*icketing (CAST)
