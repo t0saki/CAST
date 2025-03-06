@@ -1,0 +1,8 @@
+strawberry-graphql
+fastapi
+uvicorn
+asyncio
+sqlalchemy
+pydantic
+apscheduler
+asyncpg
