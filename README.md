@@ -17,7 +17,7 @@ CAST 是一个高性能、安全的投票系统，允许用户对特定用户名
 - **FastAPI + Strawberry GraphQL**：提供高性能的GraphQL API接口
 - **Redis**：用于票据和投票计数缓存
 - **PostgreSQL**：持久化存储用户投票数据
-- **Kafka**：消息队列，确保投票操作的可靠性和扩展性
+- **Kafka**：消息队列，异步更新PG，确保投票操作的可靠性和扩展性
 - **Kubernetes**：容器编排，支持系统水平扩展
 
 ### 系统架构图
