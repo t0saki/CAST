@@ -7,7 +7,6 @@ from contextlib import asynccontextmanager
 from .schema.queries import Query
 from .schema.mutations import Mutation
 from .database.db import init_db
-from .services.ticket_service import ticket_service
 
 # 创建GraphQL schema
 schema = strawberry.Schema(query=Query, mutation=Mutation)
@@ -20,8 +19,7 @@ graphql_app = GraphQLRouter(schema)
 async def lifespan(app: FastAPI):
     # 初始化数据库
     await init_db()
-    # 启动票据生成器
-    asyncio.create_task(ticket_service.start_ticket_generator())
+    # 票据生成服务已经移动到独立的服务中
     yield
 
 # 创建FastAPI应用

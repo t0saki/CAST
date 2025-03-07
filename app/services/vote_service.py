@@ -80,43 +80,38 @@ class VoteService:
         return cjson.encode({votes = result_votes, version = current_version})
         """
 
-        try:
-            # 准备Lua脚本参数
-            timestamp = str(time.time())
+        # 准备Lua脚本参数
+        timestamp = str(time.time())
 
-            # 执行Lua脚本
-            result_json = self.redis.eval(
-                vote_script,
-                3,  # 3个KEYS参数
-                self.user_votes_key,  # KEYS[1]
-                "vote_records",  # KEYS[2]
-                self.vote_version_key,  # KEYS[3]
-                json.dumps(usernames),  # ARGV[1]
-                json.dumps(voteCount),  # ARGV[2]
-                ticket,  # ARGV[3]
-                voterUsername or "",  # ARGV[4]
-                timestamp  # ARGV[5]
-            )
+        # 执行Lua脚本
+        result_json = self.redis.eval(
+            vote_script,
+            3,  # 3个KEYS参数
+            self.user_votes_key,  # KEYS[1]
+            "vote_records",  # KEYS[2]
+            self.vote_version_key,  # KEYS[3]
+            json.dumps(usernames),  # ARGV[1]
+            json.dumps(voteCount),  # ARGV[2]
+            ticket,  # ARGV[3]
+            voterUsername or "",  # ARGV[4]
+            timestamp  # ARGV[5]
+        )
 
-            # 解析结果
-            result = json.loads(result_json)
-            current_votes = result["votes"]
-            current_version = result["version"]
+        # 解析结果
+        result = json.loads(result_json)
+        current_votes = result["votes"]
+        current_version = result["version"]
 
-            # 发送投票事件到Kafka
-            await self._send_vote_events_to_kafka(usernames, current_votes, ticket, voterUsername, timestamp, current_version)
+        # 发送投票事件到Kafka
+        await self._send_vote_events_to_kafka(usernames, current_votes, ticket, voterUsername, timestamp, current_version)
 
-            return {
-                "success": True,
-                "message": "Votes recorded successfully",
-                "usernames": usernames,
-                "votes": current_votes,
-                "version": current_version
-            }
-
-        except Exception as e:
-            # 脚本执行失败时，回退到普通方法
-            return self._vote_for_users_fallback(usernames, voteCount, ticket, voterUsername)
+        return {
+            "success": True,
+            "message": "Votes recorded successfully",
+            "usernames": usernames,
+            "votes": current_votes,
+            "version": current_version
+        }
 
     async def _send_vote_events_to_kafka(self, usernames: List[str], vote_counts: List[int],
                                          ticket: str, voter_username: str = None, timestamp: str = None, version: int = None):

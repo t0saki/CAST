@@ -153,8 +153,6 @@ class VoteConsumer:
     async def send_to_dead_letter_queue(self, message, error_reason):
         """发送失败消息到死信队列，方便后续处理和分析"""
         try:
-            # 这里可以实现发送到死信队列的逻辑
-            # 例如：发送到专门的Kafka主题、写入数据库或日志系统等
             dlq_message = {
                 "original_message": message,
                 "error": error_reason,

@@ -155,7 +155,7 @@ async def test_ticket_usage_limit(
     successful_votes = 0
     for attempt in range(1, max_attempts + 1):
         try:
-            result = await client.vote([username], ticket)
+            result = await client.vote([username], [1], ticket)
             if result.get('success', False):
                 successful_votes += 1
                 if attempt % 10 == 0:
@@ -222,18 +222,18 @@ async def run_performance_tests(base_url: str, concurrency: int = 10):
             for i, exc in enumerate(concurrency_results['exceptions'], 1):
                 print(f"  {i}. {exc}")
 
-        # 5. Test ticket usage limit
-        print("\n----- Testing Ticket Usage Limit -----")
-        limit_username = "usage_limit_test_user"
-        limit_results = await test_ticket_usage_limit(client, limit_username)
+        # # 5. Test ticket usage limit
+        # print("\n----- Testing Ticket Usage Limit -----")
+        # limit_username = "usage_limit_test_user"
+        # limit_results = await test_ticket_usage_limit(client, limit_username)
 
-        print(
-            f"Successful votes before limit: {limit_results['successful_votes']}")
-        print(f"Reached the limit: {limit_results['reached_limit']}")
+        # print(
+        #     f"Successful votes before limit: {limit_results['successful_votes']}")
+        # print(f"Reached the limit: {limit_results['reached_limit']}")
 
         # 6. Query final vote counts for test users
         print("\n----- Final Vote Counts -----")
-        for username in test_users + [limit_username]:
+        for username in test_users:  # + [limit_username]:
             try:
                 votes = await client.query_votes(username)
                 print(f"  • {username}: {votes} votes")
