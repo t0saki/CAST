@@ -1,28 +1,28 @@
 # CAST - Concurrent API for Secure Ticketing
 
-[English README](README-en.md)
+[中文 README](README.md)
 
-## 项目概述
+## Project Overview
 
-CAST 是一个高性能、安全的投票系统，允许用户对特定用户名进行投票并查询当前票数。系统通过安全票据（ticket）机制确保投票操作的合法性和安全性。
+CAST is a high-performance, secure voting system that allows users to vote for specific usernames and query current vote counts. The system ensures the legitimacy and security of voting operations through a secure ticket mechanism.
 
-### 核心功能
+### Core Features
 
-- **票据生成**：系统每2秒自动生成一个新的安全票据（ticket），每个票据在有效期内可以进行有限次数的投票操作
-- **用户投票**：支持为单个或多个用户同时投票，每次投票计数可配置
-- **票数查询**：随时查询指定用户的当前票数
+- **Ticket Generation**: The system automatically generates a new secure ticket every 2 seconds, with each ticket allowing a limited number of voting operations during its validity period
+- **User Voting**: Support for simultaneous voting for single or multiple users, with configurable vote counts per operation
+- **Vote Count Queries**: Ability to query the current vote count for specified users at any time
 
-## 技术架构
+## Technical Architecture
 
-### 后端技术栈
+### Backend Technology Stack
 
-- **FastAPI + Strawberry GraphQL**：提供高性能的GraphQL API接口
-- **Redis**：用于票据和投票计数缓存
-- **PostgreSQL**：持久化存储用户投票数据
-- **Kafka**：消息队列，异步更新PG，确保投票操作的可靠性和扩展性
-- **Kubernetes**：容器编排，支持系统水平扩展
+- **FastAPI + Strawberry GraphQL**: Providing high-performance GraphQL API interfaces
+- **Redis**: Used for ticket and vote count caching
+- **PostgreSQL**: Persistent storage of user voting data
+- **Kafka**: Message queue for asynchronous updates to PostgreSQL, ensuring reliability and scalability of voting operations
+- **Kubernetes**: Container orchestration, supporting horizontal system scaling
 
-### 系统架构图
+### System Architecture Diagram
 
 ```
                                        ┌─────────────────┐
@@ -33,7 +33,7 @@ CAST 是一个高性能、安全的投票系统，允许用户对特定用户名
                                                 │
                                                 ▼
 ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
-                          Kubernetes 集群
+                          Kubernetes Cluster
 │                                                                               │
    ┌────────────────┐           ┌────────────────┐           ┌────────────────┐
 │  │                │           │                │           │                │ │
@@ -65,105 +65,104 @@ CAST 是一个高性能、安全的投票系统，允许用户对特定用户名
 └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
 ```
 
-#### 系统工作流程
+#### System Workflow
 
-1. **票据生成**：Ticket Generator服务每2秒生成一个新的安全票据，并将其存储在Redis中
-2. **API请求处理**：Main Service提供GraphQL API接口，处理客户端的投票和查询请求
-3. **票据验证**：收到投票请求时，Main Service从Redis验证票据的有效性，使用Lua脚本确保可用次数的一致性
-4. **安全投票**：使用Lua脚本确保投票操作的原子性，防止并发问题
-5. **持久化存储**：投票操作被发送到Kafka消息队列，Vote Consumer服务消费Kafka消息，并将投票结果持久化存储到PostgreSQL，会根据Vote的版本号来保证数据一致性
+1. **Ticket Generation**: The Ticket Generator service generates a new secure ticket every 2 seconds and stores it in Redis
+2. **API Request Processing**: The Main Service provides GraphQL API interfaces to handle client voting and query requests
+3. **Ticket Validation**: Upon receiving a voting request, the Main Service validates the ticket from Redis, using Lua scripts to ensure consistency of available uses
+4. **Secure Voting**: Lua scripts are used to ensure the atomicity of voting operations, preventing concurrency issues
+5. **Persistent Storage**: Voting operations are sent to the Kafka message queue, and the Vote Consumer service consumes Kafka messages and persistently stores voting results in PostgreSQL, ensuring data consistency through vote version numbers
 
-### 目录结构
+### Directory Structure
 
 ```
-├── app/                       # 主应用代码
-│   ├── config/                # 配置文件
-│   ├── database/              # 数据库相关代码
-│   ├── models/                # 数据模型
-│   ├── schema/                # GraphQL schema定义
+├── app/                       # Main application code
+│   ├── config/                # Configuration files
+│   ├── database/              # Database-related code
+│   ├── models/                # Data models
+│   ├── schema/                # GraphQL schema definitions
 │   │   ├── mutations.py       # GraphQL mutations
 │   │   ├── queries.py         # GraphQL queries
-│   │   └── types.py           # GraphQL 类型定义
-│   ├── services/              # 业务逻辑服务
-│   │   ├── ticket_service.py  # 票据服务
-│   │   └── vote_service.py    # 投票服务
-│   └── workers/               # 后台工作进程
-│       ├── ticket_generator.py# 票据生成服务
-│       └── vote_consumer.py   # 投票消费服务
-├── client/                    # 客户端代码（测试工具）
-├── deployment/                # 部署相关文件
-├── k8s/                       # Kubernetes配置文件
-├── Dockerfile                 # Docker构建文件
-├── requirements.txt           # Python依赖
-└── build-and-deploy.sh        # 构建和部署脚本
+│   │   └── types.py           # GraphQL type definitions
+│   ├── services/              # Business logic services
+│   │   ├── ticket_service.py  # Ticket service
+│   │   └── vote_service.py    # Voting service
+│   └── workers/               # Background worker processes
+│       ├── ticket_generator.py# Ticket generation service
+│       └── vote_consumer.py   # Vote consumer service
+├── client/                    # Client code (testing tools)
+├── deployment/                # Deployment-related files
+├── k8s/                       # Kubernetes configuration files
+├── Dockerfile                 # Docker build file
+├── requirements.txt           # Python dependencies
+└── build-and-deploy.sh        # Build and deploy script
 ```
 
-#### 核心组件详解
+#### Core Component Details
 
-##### 1. 主服务 (app/main.py)
-- 采用FastAPI+Strawberry GraphQL架构
-- 提供GraphQL API接口，处理客户端的投票和查询请求
-- 实现两个主要查询：
-  - `query`: 查询指定用户的当前票数
-  - `cas`: 获取当前有效的票据信息
-- 实现关键变更操作：
-  - `vote`: 为一个或多个用户投票
-- 集成票据服务和投票服务：
-  - 验证票据有效性，使用Lua脚本确保票据使用的原子性
-  - 执行投票操作，使用Lua脚本确保并发安全
-  - 将投票记录异步发送至Kafka消息队列
-- 支持水平扩展，可部署多个实例提高并发处理能力
+##### 1. Main Service (app/main.py)
+- Adopts FastAPI+Strawberry GraphQL architecture
+- Provides GraphQL API interfaces to handle client voting and query requests
+- Implements two main queries:
+  - `query`: Query the current vote count for a specified user
+  - `cas`: Get information about the currently valid ticket
+- Implements key mutation operations:
+  - `vote`: Vote for one or more users
+- Integrates ticket and voting services:
+  - Validates ticket validity, using Lua scripts to ensure atomic ticket usage
+  - Executes voting operations, using Lua scripts to ensure concurrency safety
+  - Asynchronously sends voting records to the Kafka message queue
+- Supports horizontal scaling, can deploy multiple instances to increase concurrent processing capacity
 
-##### 2. 票据生成器 (app/workers/ticket_generator.py)
-- 作为独立的微服务运行
-- 每2秒生成一个新的安全票据
-- 将生成的票据发布到Redis，供主服务验证
-- 设计为单实例运行，保证全局唯一的票据生成
+##### 2. Ticket Generator (app/workers/ticket_generator.py)
+- Runs as an independent microservice
+- Generates a new secure ticket every 2 seconds
+- Publishes generated tickets to Redis for validation by the main service
+- Designed to run as a single instance to ensure globally unique ticket generation
 
-##### 3. 投票消费服务 (app/workers/vote_consumer.py)
-- 消费Kafka队列中的投票消息
-- 将投票数据持久化到PostgreSQL数据库
-- 实现乐观锁和版本控制，确保数据一致性
-- 具有错误重试机制和死信队列处理(给定模板，暂未实现死信相关逻辑)
-- 支持水平扩展，可部署多个实例提高处理能力
-
+##### 3. Vote Consumer Service (app/workers/vote_consumer.py)
+- Consumes voting messages from the Kafka queue
+- Persists voting data to PostgreSQL database
+- Implements optimistic locking and version control to ensure data consistency
+- Features error retry mechanisms and dead letter queue processing (template provided, dead letter logic not yet implemented)
+- Supports horizontal scaling, can deploy multiple instances to increase processing capacity
 
 ## GraphQL API
 
 ### Queries
 
 - **`query(username: String!): Int!`**
-  - 查询指定用户的当前票数
+  - Query the current vote count for a specified user
   
 - **`cas(): TicketInfo!`**
-  - 获取当前有效的票据信息
+  - Get information about the currently valid ticket
 
 ### Mutations
 
 - **`vote(usernames: [String!]!, voteCount: [Int!]!, ticket: String!, voterUsername: String): VoteResult!`**
-  - 为一个或多个用户投票
-  - 需要提供有效的票据
-  - 可选择性地记录投票人
+  - Vote for one or more users
+  - Requires a valid ticket
+  - Optionally records the voter
 
-## 安装与运行
+## Installation and Operation
 
-### Kubernetes 部署
+### Kubernetes Deployment
 
 ```bash
 ./build-and-deploy.sh
 ```
 
-## 系统设计亮点
+## System Design Highlights
 
-- **高并发支持**：使用异步IO和高效的数据结构确保高并发场景下的系统性能
-- **安全票据机制**：通过基于HMAC的安全票据生成，防止投票作弊
-- **水平扩展**：服务组件可独立扩展，支持超大规模用户场景
-- **消息队列**：使用Kafka确保投票操作的可靠性和一致性
-- **容器化部署**：支持Kubernetes，便于CI/CD和云原生部署
+- **High Concurrency Support**: Uses asynchronous IO and efficient data structures to ensure system performance in high concurrency scenarios
+- **Secure Ticket Mechanism**: Prevents voting fraud through HMAC-based secure ticket generation
+- **Horizontal Scaling**: Service components can be scaled independently, supporting large-scale user scenarios
+- **Message Queue**: Uses Kafka to ensure reliability and consistency of voting operations
+- **Containerized Deployment**: Supports Kubernetes, facilitating CI/CD and cloud-native deployment
 
-# 测试运行
+# Test Run
 
-## 测试环境
+## Test Environment
 ```bash
 ❯ kubectl -n cast get all
 NAME                                   READY   STATUS    RESTARTS      AGE
@@ -202,10 +201,9 @@ statefulset.apps/redis       1/1     35s
 statefulset.apps/zookeeper   1/1     35s
 ```
 
+## Test Results
 
-## 测试结果
-
-默认可使用测试地址`http://localhost:30000/graphql`。使用client目录下的测试工具，结果如下：
+By default, you can use the test address `http://localhost:30000/graphql`. Using the testing tools in the client directory, the results are as follows:
 
 - `vote_client.py`
 
@@ -288,9 +286,9 @@ Reached the limit: True
   • usage_limit_test_user: 80 votes
 ```
 
-## 数据库验证
+## Database Verification
 
-可以通过数据库确认结果已持久化。
+Results can be confirmed as persisted through the database.
 
 ```bash
 ❯ kubectl -n cast exec -it pod/postgres-0 -- psql -U postgres -d cast -c "SELECT * FROM votes;"
