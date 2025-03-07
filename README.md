@@ -56,7 +56,7 @@ CAST 是一个高性能、安全的投票系统，允许用户对特定用户名
    ┌────────────────┐                                       ┌────────────────┐
 │  │                │                                       │                │  │
    │   PostgreSQL   │◄──────────────────────────────────────┤  Vote Consumer │
-│  │  (Persistence) │                                       │   (Multiple)│  │  │
+│  │  (Persistence) │                                       │   (Multiple)   │  │
    │                │                                       │                │
 │  └────────────────┘                                       └────────────────┘  │
 
@@ -67,9 +67,9 @@ CAST 是一个高性能、安全的投票系统，允许用户对特定用户名
 
 1. **票据生成**：Ticket Generator服务每2秒生成一个新的安全票据，并将其存储在Redis中
 2. **API请求处理**：Main Service提供GraphQL API接口，处理客户端的投票和查询请求
-3. **票据验证**：收到投票请求时，Main Service从Redis验证票据的有效性
-4. **异步处理**：投票操作被发送到Kafka消息队列，实现系统解耦和高可用
-5. **持久化存储**：Vote Consumer服务消费Kafka消息，并将投票结果持久化存储到PostgreSQL，会根据Vote的版本号来保证数据一致性
+3. **票据验证**：收到投票请求时，Main Service从Redis验证票据的有效性，使用Lua脚本确保可用次数的一致性
+4. **安全投票**：使用Lua脚本确保投票操作的原子性，防止并发问题
+5. **持久化存储**：投票操作被发送到Kafka消息队列，Vote Consumer服务消费Kafka消息，并将投票结果持久化存储到PostgreSQL，会根据Vote的版本号来保证数据一致性
 
 ### 目录结构
 
@@ -86,6 +86,8 @@ CAST 是一个高性能、安全的投票系统，允许用户对特定用户名
 │   │   ├── ticket_service.py  # 票据服务
 │   │   └── vote_service.py    # 投票服务
 │   └── workers/               # 后台工作进程
+│       ├── ticket_generator.py# 票据生成服务
+│       └── vote_consumer.py   # 投票消费服务
 ├── client/                    # 客户端代码（测试工具）
 ├── deployment/                # 部署相关文件
 ├── k8s/                       # Kubernetes配置文件
@@ -94,19 +96,49 @@ CAST 是一个高性能、安全的投票系统，允许用户对特定用户名
 └── build-and-deploy.sh        # 构建和部署脚本
 ```
 
+#### 核心组件详解
+
+##### 1. 主服务 (app/main.py)
+- 采用FastAPI+Strawberry GraphQL架构
+- 提供GraphQL API接口，处理客户端的投票和查询请求
+- 实现两个主要查询：
+  - `query`: 查询指定用户的当前票数
+  - `cas`: 获取当前有效的票据信息
+- 实现关键变更操作：
+  - `vote`: 为一个或多个用户投票
+- 集成票据服务和投票服务：
+  - 验证票据有效性，使用Lua脚本确保票据使用的原子性
+  - 执行投票操作，使用Lua脚本确保并发安全
+  - 将投票记录异步发送至Kafka消息队列
+- 支持水平扩展，可部署多个实例提高并发处理能力
+
+##### 2. 票据生成器 (app/workers/ticket_generator.py)
+- 作为独立的微服务运行
+- 每2秒生成一个新的安全票据
+- 将生成的票据发布到Redis，供主服务验证
+- 设计为单实例运行，保证全局唯一的票据生成
+
+##### 3. 投票消费服务 (app/workers/vote_consumer.py)
+- 消费Kafka队列中的投票消息
+- 将投票数据持久化到PostgreSQL数据库
+- 实现乐观锁和版本控制，确保数据一致性
+- 具有错误重试机制和死信队列处理(给定模板，暂未实现死信相关逻辑)
+- 支持水平扩展，可部署多个实例提高处理能力
+
+
 ## GraphQL API
 
 ### Queries
 
-- **query(username: String!): Int!**
+- **`query(username: String!): Int!`**
   - 查询指定用户的当前票数
   
-- **cas(): TicketInfo!**
+- **`cas(): TicketInfo!`**
   - 获取当前有效的票据信息
 
 ### Mutations
 
-- **vote(usernames: [String!]!, voteCount: [Int!]!, ticket: String!, voterUsername: String): VoteResult!**
+- **`vote(usernames: [String!]!, voteCount: [Int!]!, ticket: String!, voterUsername: String): VoteResult!`**
   - 为一个或多个用户投票
   - 需要提供有效的票据
   - 可选择性地记录投票人
@@ -171,7 +203,7 @@ statefulset.apps/zookeeper   1/1     35s
 
 ## 测试结果
 
-使用client目录下的测试工具，结果如下：
+默认可使用测试地址`http://localhost:30000/graphql`。使用client目录下的测试工具，结果如下：
 
 - `vote_client.py`
 
