@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ticket-generator
-  namespace: little-vote
+  namespace: cast
 spec:
   replicas: 1
   selector:
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: ticket-generator
-        image: little-vote:latest
+        image: cast:latest
         imagePullPolicy: IfNotPresent
         command: ["uvicorn", "app.workers.ticket_generator:app", "--host", "0.0.0.0", "--port", "8001"]
         ports:

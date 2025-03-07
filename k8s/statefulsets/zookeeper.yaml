@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: zookeeper
-  namespace: little-vote
+  namespace: cast
 spec:
   serviceName: "zookeeper"
   replicas: 1

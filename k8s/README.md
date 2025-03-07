@@ -25,7 +25,7 @@ Little Vote 系统包含以下组件：
 1. 构建 Docker 镜像:
 
 ```bash
-docker build -t little-vote:latest .
+docker build -t cast:latest .
 ```
 
 2. 部署所有 Kubernetes 资源:
@@ -66,7 +66,7 @@ k8s/
 │   ├── kafka.yaml               # Kafka
 │   └── zookeeper.yaml           # Zookeeper
 ├── ingress/                      # 入口配置
-│   └── little-vote-ingress.yaml # 应用入口
+│   └── cast-ingress.yaml # 应用入口
 └── kustomization.yaml           # Kustomize配置
 ```
 
@@ -74,10 +74,10 @@ k8s/
 
 部署完成后，可以通过以下URL访问服务：
 
-- 主服务 API: `http://little-vote.example.com/`
-- 票据生成服务: `http://little-vote.example.com/ticket`
+- 主服务 API: `http://cast.example.com/`
+- 票据生成服务: `http://cast.example.com/ticket`
 
-注意：需要将 `little-vote.example.com` 解析到您的 Ingress 控制器的外部 IP 地址。
+注意：需要将 `cast.example.com` 解析到您的 Ingress 控制器的外部 IP 地址。
 
 ## 扩展
 
@@ -85,10 +85,10 @@ k8s/
 
 ```bash
 # 扩展主服务实例数
-kubectl scale deployment/main-service -n little-vote --replicas=4
+kubectl scale deployment/main-service -n cast --replicas=4
 
 # 扩展投票消费者实例数
-kubectl scale deployment/vote-consumer -n little-vote --replicas=4
+kubectl scale deployment/vote-consumer -n cast --replicas=4
 ```
 
 ## 监控
@@ -96,13 +96,13 @@ kubectl scale deployment/vote-consumer -n little-vote --replicas=4
 您可以使用 Kubernetes Dashboard 或其他监控工具(如 Prometheus 和 Grafana)来监控服务状态：
 
 ```bash
-kubectl -n little-vote get all
+kubectl -n cast get all
 
 # 查看 Pod 日志
-kubectl -n little-vote logs deployment/main-service
+kubectl -n cast logs deployment/main-service
 
 # 查看 Pod 详情
-kubectl -n little-vote describe pod <pod-name>
+kubectl -n cast describe pod <pod-name>
 ```
 
 ## 故障排除
@@ -111,21 +111,21 @@ kubectl -n little-vote describe pod <pod-name>
 
 1. 确认所有 Pod 是否正常运行：
    ```bash
-   kubectl -n little-vote get pods
+   kubectl -n cast get pods
    ```
 
 2. 检查 Pod 日志：
    ```bash
-   kubectl -n little-vote logs <pod-name>
+   kubectl -n cast logs <pod-name>
    ```
 
 3. 检查服务连接：
    ```bash
-   kubectl -n little-vote exec <pod-name> -- curl -s main-service
+   kubectl -n cast exec <pod-name> -- curl -s main-service
    ```
 
 4. 检查 ConfigMap 和 Secret：
    ```bash
-   kubectl -n little-vote get configmaps
-   kubectl -n little-vote get secrets
+   kubectl -n cast get configmaps
+   kubectl -n cast get secrets
    ``` 

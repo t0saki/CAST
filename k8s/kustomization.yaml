@@ -27,4 +27,4 @@ resources:
   - deployments/vote-consumer.yaml
   
   # 入口
-  - ingress/little-vote-ingress.yaml 
+  - ingress/cast-ingress.yaml 

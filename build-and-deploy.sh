@@ -22,7 +22,7 @@ echo -e "${YELLOW}[INFO] 开始构建和部署 Little Vote 服务...${NC}"
 
 # 构建 Docker 镜像
 echo -e "${YELLOW}[INFO] 构建 Docker 镜像...${NC}"
-docker build -t little-vote:latest .
+docker build -t cast:latest .
 
 # 确认 Kubernetes 集群连接
 echo -e "${YELLOW}[INFO] 检查 Kubernetes 集群连接...${NC}"
@@ -33,16 +33,16 @@ if [ "$CLEAN" = true ]; then
   echo -e "${YELLOW}[INFO] 正在清理旧的部署...${NC}"
   
   # 检查命名空间是否存在
-  if kubectl get namespace little-vote &> /dev/null; then
+  if kubectl get namespace cast &> /dev/null; then
     # 删除命名空间中的所有资源
-    echo -e "${YELLOW}[INFO] 删除命名空间 little-vote 中的所有资源...${NC}"
+    echo -e "${YELLOW}[INFO] 删除命名空间 cast 中的所有资源...${NC}"
     kubectl delete -k k8s/ --ignore-not-found=true
     
     # 等待资源删除完成
     echo -e "${YELLOW}[INFO] 等待资源删除完成...${NC}"
-    kubectl wait --for=delete namespace/little-vote --timeout=120s 2>/dev/null || true
+    kubectl wait --for=delete namespace/cast --timeout=120s 2>/dev/null || true
   else
-    echo -e "${YELLOW}[INFO] 命名空间 little-vote 不存在，无需清理${NC}"
+    echo -e "${YELLOW}[INFO] 命名空间 cast 不存在，无需清理${NC}"
   fi
 fi
 
@@ -52,12 +52,12 @@ kubectl apply -k k8s/
 
 # 等待服务启动
 echo -e "${YELLOW}[INFO] 等待服务启动...${NC}"
-kubectl -n little-vote wait --for=condition=available --timeout=300s deployment/main-service deployment/ticket-generator deployment/vote-consumer
+kubectl -n cast wait --for=condition=available --timeout=300s deployment/main-service deployment/ticket-generator deployment/vote-consumer
 
 # 获取服务信息
 echo -e "${GREEN}[SUCCESS] 部署完成!${NC}"
 echo -e "${YELLOW}[INFO] 获取服务信息...${NC}"
-kubectl -n little-vote get all
+kubectl -n cast get all
 
 echo -e "${GREEN}[SUCCESS] 部署脚本执行完毕!${NC}" 
 

@@ -9,7 +9,7 @@ from ..config.redis import RedisConfig
 class TicketService:
     def __init__(self):
         self.max_usage_limit = 100  # 票据使用上限
-        self.secret_key = b'little_vote_secret_key'  # HMAC密钥，保留用于验证
+        self.secret_key = b'cast_secret_key'  # HMAC密钥，保留用于验证
         self.redis = RedisConfig.get_redis()
         self.ticket_key_prefix = "ticket:"
         self.user_votes_key = "user_votes:"

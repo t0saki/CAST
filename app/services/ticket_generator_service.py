@@ -11,7 +11,7 @@ class TicketGeneratorService:
     """专门负责生成票据的服务，设计为以单实例方式部署"""
 
     def __init__(self):
-        self.secret_key = b'little_vote_secret_key'  # HMAC密钥
+        self.secret_key = b'cast_secret_key'  # HMAC密钥
         self.redis = RedisConfig.get_redis()
         self.ticket_key_prefix = "ticket:"
 

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vote-consumer
-  namespace: little-vote
+  namespace: cast
 spec:
   replicas: 2
   selector:
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: vote-consumer
-        image: little-vote:latest
+        image: cast:latest
         imagePullPolicy: IfNotPresent
         command: ["python", "-m", "app.workers.vote_consumer"]
         envFrom:
