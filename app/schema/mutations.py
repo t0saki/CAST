@@ -3,7 +3,7 @@ import strawberry
 from typing import List
 from .types import VoteResult
 from ..services.vote_service import vote_service
-from ..services.ticket_service import ticket_service
+
 
 @strawberry.type
 class Mutation:

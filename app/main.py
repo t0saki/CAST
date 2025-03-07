@@ -1,13 +1,12 @@
 import asyncio
 import strawberry
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
-from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager
 
 from .schema.queries import Query
 from .schema.mutations import Mutation
-from .database.db import get_db, init_db
+from .database.db import init_db
 from .services.ticket_service import ticket_service
 
 # 创建GraphQL schema
@@ -15,6 +14,7 @@ schema = strawberry.Schema(query=Query, mutation=Mutation)
 
 # 创建GraphQL路由
 graphql_app = GraphQLRouter(schema)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

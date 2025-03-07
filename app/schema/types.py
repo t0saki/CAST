@@ -1,5 +1,6 @@
 import strawberry
-from typing import List, Optional
+from typing import List
+
 
 @strawberry.type
 class VoteResult:
@@ -7,6 +8,7 @@ class VoteResult:
     message: str
     usernames: List[str]
     votes: List[int]
+
 
 @strawberry.type
 class TicketInfo:

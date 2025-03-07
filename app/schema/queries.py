@@ -1,9 +1,9 @@
 # queries.py
 import strawberry
-from typing import Optional, List
-from .types import VoteResult, TicketInfo
+from .types import TicketInfo
 from ..services.vote_service import vote_service
 from ..services.ticket_service import ticket_service
+
 
 @strawberry.type
 class Query:

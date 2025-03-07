@@ -3,11 +3,11 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+
 class Vote(Base):
     __tablename__ = "votes"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
     count = Column(Integer, default=0)
-    
-    # 其他必要字段
+    version = Column(Integer, default=0)

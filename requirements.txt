@@ -8,3 +8,5 @@ apscheduler
 asyncpg
 redis
 httpx
+aiokafka
+greenlet
