@@ -61,8 +61,21 @@ app.router.lifespan_context = lifespan
 
 @app.get("/health")
 async def health_check():
-    """健康检查端点"""
-    return {"status": "healthy", "service": "ticket-generator"}
+    """健康检查端点，包括检查Redis连接状态"""
+    health_status = {"service": "ticket-generator"}
+
+    # 检查Redis连接
+    redis_client = RedisConfig.get_redis()
+    try:
+        # 尝试执行简单的Redis操作
+        redis_client.ping()
+        health_status["redis"] = "connected"
+        health_status["status"] = "healthy"
+    except Exception as e:
+        health_status["redis"] = f"error: {str(e)}"
+        health_status["status"] = "degraded"
+
+    return health_status
 
 
 if __name__ == "__main__":

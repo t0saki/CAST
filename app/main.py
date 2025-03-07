@@ -3,6 +3,7 @@ import strawberry
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
 from contextlib import asynccontextmanager
+from fastapi.responses import JSONResponse
 
 from .schema.queries import Query
 from .schema.mutations import Mutation
@@ -24,6 +25,13 @@ async def lifespan(app: FastAPI):
 
 # 创建FastAPI应用
 app = FastAPI(title="Little Vote", lifespan=lifespan)
+
+# 添加健康检查端点
+
+
+@app.get("/healthz")
+async def health_check():
+    return JSONResponse(status_code=200, content={"status": "healthy"})
 
 # 添加GraphQL路由
 app.include_router(graphql_app, prefix="/graphql")

@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from ..models.vote import Base
 
 # 创建数据库引擎 (使用PostgreSQL)
-DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/little_vote"
+DATABASE_URL = "postgresql+asyncpg://postgres:postgres@postgres:5432/little_vote"
 engine = create_async_engine(DATABASE_URL, echo=True)
 
 # 创建会话工厂

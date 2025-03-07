@@ -14,7 +14,7 @@ class KafkaConfig:
         if cls._producer is None:
             # 从环境变量获取配置，如果没有则使用默认值
             kafka_bootstrap_servers = os.getenv(
-                "KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+                "KAFKA_BOOTSTRAP_SERVERS", "kafka:9092")
 
             # 创建生产者
             cls._producer = AIOKafkaProducer(

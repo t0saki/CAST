@@ -248,7 +248,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Performance testing for Little Vote system")
     parser.add_argument(
-        "--url", default="http://localhost:8000/graphql", help="GraphQL endpoint URL")
+        "--url", default="http://localhost:30000/graphql", help="GraphQL endpoint URL")
     parser.add_argument("--concurrency", type=int, default=20,
                         help="Number of concurrent requests")
     args = parser.parse_args()

@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: little-vote-ingress
+  namespace: little-vote
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: little-vote
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: main-service
+            port:
+              number: 80
+      - path: /ticket
+        pathType: Prefix
+        backend:
+          service:
+            name: ticket-generator
+            port:
+              number: 8001 

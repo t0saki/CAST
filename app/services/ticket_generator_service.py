@@ -18,8 +18,19 @@ class TicketGeneratorService:
     async def start_ticket_generator(self):
         """启动票据生成器，每2秒生成一个新票据"""
         while True:
-            await self.generate_new_ticket()
-            await asyncio.sleep(2)  # 每2秒生成一次
+            try:
+                result = await self.generate_new_ticket()
+                if result and "error" in result:
+                    # 如果遇到错误，等待较短时间后重试
+                    print(f"票据生成失败，将在1秒后重试: {result['error']}")
+                    await asyncio.sleep(1)  # 错误后较短重试时间
+                    continue
+                # 正常情况，每2秒生成一次
+                await asyncio.sleep(2)
+            except Exception as e:
+                # 捕获其他未预期的错误
+                print(f"票据生成器遇到意外错误: {str(e)}")
+                await asyncio.sleep(1)  # 错误后较短重试时间
 
     async def generate_new_ticket(self):
         """生成新票据，使用HMAC配合时间戳"""
@@ -39,23 +50,31 @@ class TicketGeneratorService:
             "createdAt": datetime.fromtimestamp(timestamp).isoformat()
         }
 
-        # 使用管道确保原子操作
-        pipe = self.redis.pipeline()
+        try:
+            # 使用管道确保原子操作
+            pipe = self.redis.pipeline()
 
-        # 存储新票据信息
-        pipe.set(f"{self.ticket_key_prefix}{ticket_id}",
-                 json.dumps(ticket_info))
+            # 存储新票据信息
+            pipe.set(f"{self.ticket_key_prefix}{ticket_id}",
+                     json.dumps(ticket_info))
 
-        # 更新当前有效票据
-        pipe.set("current_ticket", ticket_id)
+            # 更新当前有效票据
+            pipe.set("current_ticket", ticket_id)
 
-        # 设置过期时间（稍大于2秒，确保在新票据生成前不过期）
-        pipe.expire(f"{self.ticket_key_prefix}{ticket_id}", 5)
+            # 设置过期时间（稍大于2秒，确保在新票据生成前不过期）
+            pipe.expire(f"{self.ticket_key_prefix}{ticket_id}", 5)
 
-        # 执行所有操作
-        pipe.execute()
+            # 执行所有操作
+            pipe.execute()
 
-        return ticket_info
+            return ticket_info
+        except Exception as e:
+            # 记录错误并返回详细信息
+            error_msg = f"Redis连接错误: {str(e)}"
+            print(f"[错误] {error_msg}")
+            # 如果有日志系统，可以记录详细错误
+            # logger.error(error_msg)
+            return {"error": error_msg, "status": "failed"}
 
 
 # 创建单例实例

@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: little-vote
+data:
+  # 数据库连接配置
+  POSTGRES_HOST: "postgres"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "little_vote"
+  
+  # Redis配置
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  
+  # Kafka配置
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  KAFKA_TOPIC: "votes"
+  
+  # 应用配置
+  TICKET_VALID_DURATION: "2"  # 以秒为单位
+  TICKET_MAX_USAGE: "10"      # 每个ticket的最大使用次数 

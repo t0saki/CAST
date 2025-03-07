@@ -17,7 +17,7 @@ import httpx
 class LittleVoteClient:
     """Client for interacting with the Little Vote GraphQL API."""
 
-    def __init__(self, base_url: str = "http://localhost:8000/graphql"):
+    def __init__(self, base_url: str = "http://localhost:30000/graphql"):
         """
         Initialize the client with the GraphQL endpoint URL.
 

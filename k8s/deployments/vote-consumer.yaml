@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vote-consumer
+  namespace: little-vote
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vote-consumer
+  template:
+    metadata:
+      labels:
+        app: vote-consumer
+    spec:
+      containers:
+      - name: vote-consumer
+        image: little-vote:latest
+        imagePullPolicy: IfNotPresent
+        command: ["python", "-m", "app.workers.vote_consumer"]
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "0.1"
+          limits:
+            memory: "512Mi"
+            cpu: "0.3" 
